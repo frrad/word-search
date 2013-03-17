@@ -10,10 +10,10 @@ const (
 	shortestword    = 3
 	minWordQuantity = 2
 	maxWordQuantity = 10
-	minxdim         = 10
-	maxxdim         = 20
-	minydim         = 10
-	maxydim         = 20
+	minxdim         = 20
+	maxxdim         = 40
+	minydim         = 60
+	maxydim         = 80
 )
 
 func abs(n int) int {

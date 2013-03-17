@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"os"
 )
 
 func readFile(filename string) (answer [][]byte, lists [][]byte, wrapflag bool) {
@@ -173,7 +174,16 @@ func dumbSearch(grid [][]byte, word []byte) (
 
 func main() {
 
-	grid, list, _ := readFile("test123.txt")
+//default input is test.txt
+	inputname := "test.txt"
+
+//unless it's specified
+if len(os.Args) > 1{
+	inputname = os.Args[1]
+}
+
+
+	grid, list, _ := readFile(inputname)
 
 	for i := 0; i < len(list); i++ {
 

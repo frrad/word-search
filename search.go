@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 )
 
-func readFile(filename string, numRows int, numColumns int) (answer [][]byte) {
+func readFile(filename string) [][]byte {
 
 	filecontents, err := ioutil.ReadFile(filename)
 
@@ -13,15 +14,43 @@ func readFile(filename string, numRows int, numColumns int) (answer [][]byte) {
 		panic(err)
 	}
 
+	rowstring := ""
+	place := 0
+	//read until we encounter " "
+	for i := 0; filecontents[i] != byte(32); i++ {
+		rowstring += string(filecontents[i])
+		place = i
+	}
+
+	place += 2 //skip space
+
+	colstring := ""
+	//read until we find newline character
+	for i := place; filecontents[i] != byte(10); i++ {
+		colstring += string(filecontents[i])
+		place = i
+	}
+
+	place += 2
+
+	numColumns, err := strconv.Atoi(colstring)
+	if err != nil {
+		panic(err)
+	}
+	numRows, _ := strconv.Atoi(rowstring)
+	if err != nil {
+		panic(err)
+	}
+
 	//initialize a 2-d slice 
-	answer = make([][]byte, numRows)
+	answer := make([][]byte, numRows)
 
 	//read values in from file.
 	for row := 0; row < numRows; row++ {
 		answer[row] = make([]byte, numColumns)
 
 		for col := 0; col < numColumns; col++ {
-			answer[row][col] = filecontents[(1+numColumns)*row+col]
+			answer[row][col] = filecontents[place+(1+numColumns)*row+col]
 		}
 	}
 
@@ -29,14 +58,14 @@ func readFile(filename string, numRows int, numColumns int) (answer [][]byte) {
 	/*
 		for _, row := range answer {
 			for _, char := range row {
-				fmt.Print(char)
+				fmt.Print(string(char))
 			}
 			fmt.Println("")
 
 		}
 	*/
 
-	return
+	return answer
 }
 
 func match(grid [][]byte, word []byte, xstart int, ystart int,
@@ -72,12 +101,9 @@ func wordByte(word string) (answer []byte) {
 	return
 }
 
-func main() {
-
-	numrows := 3
-	numcols := 7
-	grid := readFile("test.txt", numrows, numcols)
-	word := wordByte("TME")
+func dumbSearch(grid [][]byte, word []byte) {
+	numrows := len(grid)
+	numcols := len(grid[0])
 
 	for i := 0; i < numrows; i++ {
 		for j := 0; j < numcols; j++ {
@@ -92,5 +118,14 @@ func main() {
 
 		}
 	}
+}
+
+func main() {
+
+	grid := readFile("test.txt")
+
+	word := wordByte("TME")
+
+	dumbSearch(grid, word)
 
 }

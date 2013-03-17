@@ -6,6 +6,16 @@ import (
 	"time"
 )
 
+const (
+	shortestword    = 3
+	minWordQuantity = 2
+	maxWordQuantity = 10
+	minxdim         = 10
+	maxxdim         = 20
+	minydim         = 10
+	maxydim         = 20
+)
+
 func abs(n int) int {
 	if n < 0 {
 		return -n
@@ -20,23 +30,26 @@ func ifneg(n int) int {
 	return 0
 }
 
+func randInt(min int, max int) int {
+	return rand.Int()%(max-min) + min
+}
 func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	numberwords := 5
+	numberwords := randInt(maxWordQuantity, minWordQuantity)
 
-	rows := 15
-	columns := 20
-	//maxdimension := 0
+	rows := rand.Int()%(maxxdim-minxdim) + minxdim
+	columns := rand.Int()%(maxydim-minydim) + minydim
 
 	fmt.Println(rows, columns)
 
-	/*	if rows > columns {
-			maxdimension = rows
-		} else {
-			maxdimension = columns
-		}*/
+	mindimension := 0
+	if rows > columns {
+		mindimension = columns
+	} else {
+		mindimension = rows
+	}
 
 	table := make([][]string, rows)
 
@@ -56,11 +69,11 @@ func main() {
 	}
 
 	fmt.Println("NO_WRAP")
+	fmt.Println(numberwords)
 
 	for i := 0; i < numberwords; i++ {
 
-		const longestword = 4
-		const shortestword = 2
+		longestword := mindimension
 
 		wordlength := rand.Int()%(longestword-shortestword+1) + shortestword
 
@@ -70,8 +83,23 @@ func main() {
 			a = 1
 		}
 
-		x := rand.Int()%(rows-2*wordlength-2) + wordlength
-		y := rand.Int()%(columns-2*wordlength-2) + wordlength
+		x := 0
+		if a == 1 {
+			x = rand.Int() % (rows - (wordlength - 1))
+		} else if a == 0 {
+			x = rand.Int() % (rows)
+		} else {
+			x = rand.Int()%(rows-(wordlength-1)) + (wordlength - 1)
+		}
+
+		y := 0
+		if b == 1 {
+			y = rand.Int() % (columns - (wordlength - 1))
+		} else if b == 0 {
+			y = rand.Int() % (columns)
+		} else {
+			y = rand.Int()%(columns-wordlength-1) + (wordlength - 1)
+		}
 
 		word := ""
 		for j := 0; j < wordlength; j++ {

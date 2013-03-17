@@ -17,21 +17,21 @@ func readFile(filename string) (answer [][]byte, lists [][]byte, wrapflag bool) 
 	rowstring := ""
 	place := 0
 	//read until we encounter " "
-	for i := 0; filecontents[i] != byte(32); i++ {
-		rowstring += string(filecontents[i])
-		place = i
+	for filecontents[place] != byte(32) {
+		rowstring += string(filecontents[place])
+		place++
 	}
 
-	place += 2 //skip space
+	place += 1 //skip space
 
 	colstring := ""
 	//read until we find newline character
-	for i := place; filecontents[i] != byte(10); i++ {
-		colstring += string(filecontents[i])
-		place = i
+	for filecontents[place] != byte(10) {
+		colstring += string(filecontents[place])
+		place++
 	}
 
-	place += 2
+	place += 1
 
 	numColumns, err := strconv.Atoi(colstring)
 	if err != nil {
@@ -65,7 +65,7 @@ func readFile(filename string) (answer [][]byte, lists [][]byte, wrapflag bool) 
 		}
 	*/
 
-	place += numColumns * (numRows + 1) //skip reading past grid
+	place += (numColumns + 1) * numRows //skip reading past grid
 	tempstring := ""
 	//read until we find newline character
 	for i := place; filecontents[i] != byte(10); i++ {
@@ -173,7 +173,7 @@ func dumbSearch(grid [][]byte, word []byte) (
 
 func main() {
 
-	grid, list, _ := readFile("test.txt")
+	grid, list, _ := readFile("test123.txt")
 
 	for i := 0; i < len(list); i++ {
 

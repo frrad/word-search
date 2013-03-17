@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
-    "io/ioutil"
 )
 
 const (
@@ -15,7 +17,6 @@ const (
 	maxxdim         = 40
 	minydim         = 60
 	maxydim         = 80
-	outputname		= "testoutput.txt"
 )
 
 func abs(n int) int {
@@ -38,15 +39,13 @@ func randInt(min int, max int) int {
 
 func stringByte(str string) (output []byte) {
 	output = make([]byte, len(str))
-	for i,char := range str {
+	for i, char := range str {
 		output[i] = byte(char)
 	}
 	return
 }
 
 func main() {
-
-	
 
 	rand.Seed(time.Now().UnixNano())
 
@@ -84,6 +83,8 @@ func main() {
 	fmt.Println("NO_WRAP")
 	fmt.Println(numberwords)
 
+	wordlist := make([]string, numberwords)
+
 	for i := 0; i < numberwords; i++ {
 
 		longestword := mindimension
@@ -119,10 +120,45 @@ func main() {
 			word += table[j*a+x][j*b+y]
 		}
 		fmt.Println(word)
+		wordlist[i] = word
 
 	}
 
-	err := ioutil.WriteFile( outputname, stringByte("testests"), 0644)
-    if err != nil { panic(err) }
+	//OUTPUT TO FILE
+
+	filecontents := stringByte(strconv.Itoa(rows) + " " + strconv.Itoa(columns))
+	filecontents = append(filecontents, byte(10))
+
+	for i := 0; i < rows; i++ {
+		for j := 0; j < columns; j++ {
+			filecontents = append(filecontents, byte(table[i][j][0]))
+		}
+		filecontents = append(filecontents, byte(10))
+	}
+
+	filecontents = append(filecontents, stringByte("NO_WRAP\n")...)
+	filecontents = append(filecontents, stringByte(strconv.Itoa(numberwords))...)
+	filecontents = append(filecontents, byte(10))
+
+	for j := 0; j < numberwords; j++ {
+
+		filecontents = append(filecontents, stringByte(wordlist[j])...)
+
+		filecontents = append(filecontents, byte(10))
+
+	}
+
+	outputname := strconv.Itoa(randInt(100, 999))
+
+	if len(os.Args) > 1 {
+		outputname = os.Args[1]
+	}
+
+	err := ioutil.WriteFile("test."+outputname+".txt", filecontents[:len(filecontents)-1], 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("\nExample written to test.%v.txt\n", outputname)
 
 }

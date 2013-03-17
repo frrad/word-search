@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func readFile(filename string) [][]byte {
+func readFile(filename string) ([][]byte, [][]byte, bool) {
 
 	filecontents, err := ioutil.ReadFile(filename)
 
@@ -65,7 +65,51 @@ func readFile(filename string) [][]byte {
 		}
 	*/
 
-	return answer
+	place += numColumns*numRows + 2
+	tempstring := ""
+	//read until we find newline character
+	for i := place; filecontents[i] != byte(10); i++ {
+		tempstring += string(filecontents[i])
+		place = i
+	}
+
+	var wrapflag bool
+	if tempstring == "WRAP" {
+		wrapflag = true
+	} else if tempstring == "NO_WRAP" {
+		wrapflag = false
+	} else {
+		panic("bad flag")
+	}
+
+	place += 2
+	tempstring = ""
+	//read until we find newline character
+	for i := place; filecontents[i] != byte(10); i++ {
+		tempstring += string(filecontents[i])
+		place = i
+	}
+
+	numberoflists, err := strconv.Atoi(tempstring)
+	if err != nil {
+		panic(err)
+	}
+
+	lists := make([][]byte, numberoflists)
+
+	for j := 0; j < numberoflists; j++ {
+
+		place += 2
+		tempstring = ""
+		//read until we find newline character
+		for i := place; i < len(filecontents) && filecontents[i] != byte(10); i++ {
+			tempstring += string(filecontents[i])
+			place = i
+		}
+		lists[j] = wordByte(tempstring)
+	}
+
+	return answer, lists, wrapflag
 }
 
 func match(grid [][]byte, word []byte, xstart int, ystart int,
@@ -77,7 +121,7 @@ func match(grid [][]byte, word []byte, xstart int, ystart int,
 	ysize := len(grid[0])
 
 	//Check if we fall off grid
-	if (wordlength-1)*xdir+xstart > xsize || (wordlength-1)*ydir+ystart > ysize ||
+	if (wordlength-1)*xdir+xstart >= xsize || (wordlength-1)*ydir+ystart >= ysize ||
 		(wordlength-1)*xdir+xstart < 0 || (wordlength-1)*ydir+ystart < 0 {
 		return false
 	}
@@ -122,10 +166,11 @@ func dumbSearch(grid [][]byte, word []byte) {
 
 func main() {
 
-	grid := readFile("test.txt")
+	grid, list, _ := readFile("test.txt")
 
-	word := wordByte("TME")
+	for i := 0; i < len(list); i++ {
 
-	dumbSearch(grid, word)
+		dumbSearch(grid, list[i])
+	}
 
 }

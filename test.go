@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+    "io/ioutil"
 )
 
 const (
@@ -14,6 +15,7 @@ const (
 	maxxdim         = 40
 	minydim         = 60
 	maxydim         = 80
+	outputname		= "testoutput.txt"
 )
 
 func abs(n int) int {
@@ -33,7 +35,18 @@ func ifneg(n int) int {
 func randInt(min int, max int) int {
 	return rand.Int()%(max-min) + min
 }
+
+func stringByte(str string) (output []byte) {
+	output = make([]byte, len(str))
+	for i,char := range str {
+		output[i] = byte(char)
+	}
+	return
+}
+
 func main() {
+
+	
 
 	rand.Seed(time.Now().UnixNano())
 
@@ -108,5 +121,8 @@ func main() {
 		fmt.Println(word)
 
 	}
+
+	err := ioutil.WriteFile( outputname, stringByte("testests"), 0644)
+    if err != nil { panic(err) }
 
 }

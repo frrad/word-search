@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func readFile(filename string) ([][]byte, [][]byte, bool) {
+func readFile(filename string) (answer [][]byte, lists [][]byte, wrapflag bool) {
 
 	filecontents, err := ioutil.ReadFile(filename)
 
@@ -43,7 +43,7 @@ func readFile(filename string) ([][]byte, [][]byte, bool) {
 	}
 
 	//initialize a 2-d slice 
-	answer := make([][]byte, numRows)
+	answer = make([][]byte, numRows)
 
 	//read values in from file.
 	for row := 0; row < numRows; row++ {
@@ -65,7 +65,7 @@ func readFile(filename string) ([][]byte, [][]byte, bool) {
 		}
 	*/
 
-	place += numColumns*numRows + 2
+	place += numColumns * (numRows + 1) //skip reading past grid
 	tempstring := ""
 	//read until we find newline character
 	for i := place; filecontents[i] != byte(10); i++ {
@@ -73,13 +73,12 @@ func readFile(filename string) ([][]byte, [][]byte, bool) {
 		place = i
 	}
 
-	var wrapflag bool
 	if tempstring == "WRAP" {
 		wrapflag = true
 	} else if tempstring == "NO_WRAP" {
 		wrapflag = false
 	} else {
-		panic("bad flag")
+		panic("bad flag" + tempstring)
 	}
 
 	place += 2
@@ -95,7 +94,7 @@ func readFile(filename string) ([][]byte, [][]byte, bool) {
 		panic(err)
 	}
 
-	lists := make([][]byte, numberoflists)
+	lists = make([][]byte, numberoflists)
 
 	for j := 0; j < numberoflists; j++ {
 
@@ -109,7 +108,7 @@ func readFile(filename string) ([][]byte, [][]byte, bool) {
 		lists[j] = wordByte(tempstring)
 	}
 
-	return answer, lists, wrapflag
+	return
 }
 
 func match(grid [][]byte, word []byte, xstart int, ystart int,
@@ -145,9 +144,12 @@ func wordByte(word string) (answer []byte) {
 	return
 }
 
-func dumbSearch(grid [][]byte, word []byte) {
+func dumbSearch(grid [][]byte, word []byte) (
+	xstart int, ystart int, xend int, yend int) {
 	numrows := len(grid)
 	numcols := len(grid[0])
+
+	xstart = -1
 
 	for i := 0; i < numrows; i++ {
 		for j := 0; j < numcols; j++ {
@@ -155,13 +157,18 @@ func dumbSearch(grid [][]byte, word []byte) {
 			for a := -1; a < 2; a++ {
 				for b := -1; b < 2; b++ {
 					if match(grid, word, i, j, a, b) {
-						fmt.Println("(", 1+i, ",", j+1, ")", a, b)
+						xstart = i
+						ystart = j
+						xend = i + a*(len(word)-1)
+						yend = j + b*(len(word)-1)
+						return
 					}
 				}
 			}
 
 		}
 	}
+	return
 }
 
 func main() {
@@ -170,7 +177,12 @@ func main() {
 
 	for i := 0; i < len(list); i++ {
 
-		dumbSearch(grid, list[i])
+		x0, y0, x1, y1 := dumbSearch(grid, list[i])
+		if x0 == -1 {
+			fmt.Println("NOT FOUND")
+		} else {
+			fmt.Println("(", x0, ",", y0, ") (", x1, ",", y1, ")")
+		}
 	}
 
 }
